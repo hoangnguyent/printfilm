@@ -115,6 +115,29 @@ No key yet, just want the UI? Set `ARK_MOCK=true`.
 
 Default Docker host ports are PostgreSQL `25432`, Redis `26379`, API `18000`, app `18080`, and admin `18081`. Inside the Docker network, the API still connects to PostgreSQL at `postgres:5432`. Change the corresponding `*_PORT` variables to customize host ports.
 
+The local Docker stack uses the `postgres` role and the `public` database to
+reuse the standard local PostgreSQL setup. `public` is a database name selected
+by this project; PostgreSQL's built-in `public` schema is a separate concept.
+The official image creates the configured role and database automatically
+when it initializes a new, empty data volume. For an existing volume, these
+settings do not create or rename database objects or change an existing role's
+password; that volume must already contain the `postgres` role and `public`
+database, and the role password must match `POSTGRES_PASSWORD`. The local stack
+uses the PostgreSQL superuser for convenience; use a dedicated least-privilege
+role in production.
+
+To connect from a database client running on the host, use:
+
+```text
+JDBC URL: jdbc:postgresql://localhost:25432/public
+Username: postgres
+Password: the value of POSTGRES_PASSWORD in deploy/.env.docker
+```
+
+The database path is `/public` (not `/postgres`): `postgres` is the username.
+If you change `POSTGRES_PORT`, use that host port instead of `25432`. From
+another container on the Compose network, connect to `postgres:5432/public`.
+
 ### 2. Start
 
 ```bash

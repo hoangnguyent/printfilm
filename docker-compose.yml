@@ -9,13 +9,13 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-printfilm}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-strong-db-password}
-      POSTGRES_DB: ${POSTGRES_DB:-printfilm}
+      POSTGRES_DB: ${POSTGRES_DB:-public}
     volumes:
       - printfilm_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-printfilm} -d ${POSTGRES_DB:-printfilm}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-public}"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -42,8 +42,8 @@ services:
     env_file:
       - deploy/.env.docker
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-printfilm}:${POSTGRES_PASSWORD:-change-me-strong-db-password}@postgres:5432/${POSTGRES_DB:-printfilm}
-      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-printfilm}:${POSTGRES_PASSWORD:-change-me-strong-db-password}@postgres:5432/${POSTGRES_DB:-printfilm}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-change-me-strong-db-password}@postgres:5432/${POSTGRES_DB:-public}
+      DATABASE_URL_SYNC: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-change-me-strong-db-password}@postgres:5432/${POSTGRES_DB:-public}
       REDIS_URL: redis://redis:6379/0
     volumes:
       - printfilm_media:/app/static/generated

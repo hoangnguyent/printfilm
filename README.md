@@ -115,6 +115,10 @@ cp deploy/.env.docker.example deploy/.env.docker
 
 默认 Docker 主机端口为 PostgreSQL `25432`、Redis `26379`、API `18000`、用户端 `18080`、管理端 `18081`。API 容器在 Docker 网络内仍通过 `postgres:5432` 连接数据库；如需自定义主机端口，改对应的 `*_PORT` 变量即可。
 
+本地 Docker 全栈默认使用 PostgreSQL `postgres` 角色和 `public` 数据库，以复用已有的本地数据库配置。`public` 是本项目选择的数据库名；PostgreSQL 内置的 `public` schema 是另一个概念。官方镜像只会在首次初始化空数据卷时自动创建配置的角色和数据库；已有数据卷不会因修改环境变量而自动新建、重命名对象或更新既有角色密码，必须已包含 `postgres` 角色与 `public` 数据库，且角色密码与 `POSTGRES_PASSWORD` 一致。本地为方便使用 PostgreSQL 超级用户；生产环境应使用权限受限的专用角色。
+
+从 Windows 主机上的数据库客户端连接时，使用 JDBC URL `jdbc:postgresql://localhost:25432/public`，用户名 `postgres`，密码为 `deploy/.env.docker` 中的 `POSTGRES_PASSWORD`。路径是 `/public`（不是 `/postgres`）：`postgres` 是用户名。若修改 `POSTGRES_PORT`，URL 中也要使用新的主机端口。其他 Compose 容器应连接 `postgres:5432/public`。
+
 ### 2. 一键启动
 
 ```bash

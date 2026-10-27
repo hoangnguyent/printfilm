@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 60 * 24 * 7
 
-    database_url: str = "postgresql+asyncpg://printfilm:change-me-strong-db-password@127.0.0.1:25432/printfilm"
-    database_url_sync: str = "postgresql+psycopg2://printfilm:change-me-strong-db-password@127.0.0.1:25432/printfilm"
+    database_url: str = "postgresql+asyncpg://postgres:change-me-strong-db-password@127.0.0.1:25432/public"
+    database_url_sync: str = "postgresql+psycopg2://postgres:change-me-strong-db-password@127.0.0.1:25432/public"
     # 连接已初始化的共享库时可关闭建表/补列/种子数据；仍加载数据库中的模型配置。
     database_bootstrap_enabled: bool = True
     # Postgres 连接池（统一任务平台 / API 共用）
