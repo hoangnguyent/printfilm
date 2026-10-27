@@ -2,7 +2,7 @@ import type { AdminTopUser, AdminUsageBucket } from "@/api/client";
 import type { DashboardMetric } from "@/pages/dashboard/DashboardFilters";
 import { UsageDistributionChart } from "@/pages/dashboard/UsageDistributionChart";
 
-/** 用户排行转为柱状图数据桶 */
+/** Convert user rankings to chart data buckets. */
 export function topUsersToBuckets(users: AdminTopUser[]): AdminUsageBucket[] {
   return users.map((user) => ({
     key: String(user.user_id),
@@ -12,7 +12,7 @@ export function topUsersToBuckets(users: AdminTopUser[]): AdminUsageBucket[] {
   }));
 }
 
-/** 柱状图 Y 轴用户简称 */
+/** Short user label for the chart's Y axis. */
 export function topUserChartLabel(userId: string, users: AdminTopUser[]): string {
   const user = users.find((item) => String(item.user_id) === userId);
   const email = user?.email ?? "";
@@ -26,11 +26,11 @@ type TopUsersRankingChartProps = {
   metric: DashboardMetric;
 };
 
-/** 用户消费排行：与领域分布一致的横向柱状图 */
+/** User spending rankings shown as a horizontal bar chart. */
 export function TopUsersRankingChart({ users, metric }: TopUsersRankingChartProps) {
   const rows = topUsersToBuckets(users);
   if (rows.length === 0) {
-    return <div className="admin-chart-empty">暂无排行</div>;
+    return <div className="admin-chart-empty">No rankings available</div>;
   }
 
   return (

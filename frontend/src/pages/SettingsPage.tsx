@@ -61,7 +61,7 @@ function parseTab(raw: string | null): SettingsTab {
 }
 
 // 格式化相对时间展示
-function formatWhen(iso: string | undefined, locale: 'zh' | 'en') {
+function formatWhen(iso: string | undefined, locale: 'zh' | 'en' | 'vi') {
   return formatDateTime(iso, locale)
 }
 

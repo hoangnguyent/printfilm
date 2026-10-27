@@ -21,9 +21,9 @@ type ListRes = { items: AdminTemplate[]; meta: PageMeta };
 type MetaRes = { categories: string[] };
 
 const STATUS_OPTIONS = [
-  { value: "", label: "全部状态" },
-  { value: "active", label: "已上架" },
-  { value: "inactive", label: "已下架" },
+  { value: "", label: "All statuses" },
+  { value: "active", label: "Published" },
+  { value: "inactive", label: "Unpublished" },
   { value: "premium", label: "Premium" },
 ];
 
@@ -46,13 +46,13 @@ const emptyForm = (): TemplateFormState => ({
   is_premium: false,
 });
 
-// 从 seedream_config 读取角色/额外提示词
+// Read character and extra prompts from seedream_config.
 function seedreamText(cfg: Record<string, unknown> | undefined, key: string): string {
   const value = cfg?.[key];
   return typeof value === "string" ? value : "";
 }
 
-// 模板管理：封面卡片网格 + 分类筛选 + 全局 UI 组件
+// Template management with cover cards, category filters, and shared UI components.
 export function TemplatesPage() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState<ListRes | null>(null);
@@ -68,7 +68,7 @@ export function TemplatesPage() {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // 加载模板分页列表（服务端筛选）
+  // Load the paginated template list with server-side filtering.
   async function load(nextPage = page) {
     setLoading(true);
     try {
@@ -82,13 +82,13 @@ export function TemplatesPage() {
       if (statusFilter === "inactive") params.set("is_active", "false");
       setData(await api<ListRes>(`/api/admin/templates?${params}`));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "加载失败");
+      toast.error(err instanceof Error ? err.message : "Failed to load templates");
     } finally {
       setLoading(false);
     }
   }
 
-  // 加载全库分类标签
+  // Load category labels across the template library.
   async function loadMeta() {
     try {
       const meta = await api<MetaRes>("/api/admin/templates/meta");
@@ -112,7 +112,7 @@ export function TemplatesPage() {
     const countFor = (cat: string) =>
       items.filter((t) => (t.category || []).includes(cat)).length;
     return [
-      { value: "", label: "全部分类", count: items.length },
+      { value: "", label: "All categories", count: items.length },
       ...categories.map((cat) => ({
         value: cat,
         label: cat,
@@ -127,14 +127,14 @@ export function TemplatesPage() {
     return items.filter((t) => t.is_premium);
   }, [data?.items, statusFilter]);
 
-  // 打开新建弹窗
+  // Open the create dialog.
   function openCreate() {
     setEditing(null);
     setForm(emptyForm());
     setOpen(true);
   }
 
-  // 打开编辑弹窗（拉取最新配置）
+  // Open the edit dialog with the latest configuration.
   async function openEdit(tpl: AdminTemplate) {
     try {
       const fresh = await api<AdminTemplate>(`/api/admin/templates/${tpl.id}`);
@@ -159,11 +159,11 @@ export function TemplatesPage() {
       });
       setOpen(true);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "加载模板详情失败");
+      toast.error(err instanceof Error ? err.message : "Failed to load template details");
     }
   }
 
-  // 创建或更新模板
+  // Create or update a template.
   async function save() {
     setSaving(true);
     try {
@@ -196,7 +196,7 @@ export function TemplatesPage() {
           }),
         });
       } else {
-        if (!form.id.trim()) throw new Error("请填写模板 ID");
+        if (!form.id.trim()) throw new Error("Enter a template ID");
         await api(`/api/admin/templates`, {
           method: "POST",
           body: JSON.stringify({
@@ -224,37 +224,37 @@ export function TemplatesPage() {
           }),
         });
       }
-      toast.success("已保存");
+      toast.success("Saved");
       setOpen(false);
       await Promise.all([load(), loadMeta()]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "保存失败");
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
       setSaving(false);
     }
   }
 
-  // 快捷切换上架 / Premium
+  // Quickly toggle publishing or Premium status.
   async function quickPatch(id: string, body: Partial<AdminTemplate>) {
     try {
       await api(`/api/admin/templates/${id}`, { method: "PATCH", body: JSON.stringify(body) });
       await load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "更新失败");
+      toast.error(err instanceof Error ? err.message : "Failed to update template");
     }
   }
 
-  // 确认删除模板
+  // Confirm template deletion.
   async function confirmDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
       await api(`/api/admin/templates/${deleteTarget}`, { method: "DELETE" });
-      toast.success("已删除");
+      toast.success("Deleted");
       setDeleteTarget(null);
       await Promise.all([load(), loadMeta()]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "删除失败");
+      toast.error(err instanceof Error ? err.message : "Failed to delete template");
     } finally {
       setDeleting(false);
     }
@@ -263,11 +263,11 @@ export function TemplatesPage() {
   return (
     <div className="admin-list-page">
       <PageHeader
-        description="风格 / 角色 / 提示词以本页为准；已创建项目需在分镜页恢复模板后才会跟随。"
+        description="Style, character, and prompt settings are managed here. Existing projects must restore the template from the storyboard page to apply changes."
         actions={
           <Button onClick={openCreate} className="gap-2">
             <Plus className="h-4 w-4" />
-            新建模板
+            Create Template
           </Button>
         }
       />
@@ -276,13 +276,13 @@ export function TemplatesPage() {
         trailing={
           <>
             <LayoutGrid className="h-4 w-4" />
-            {filteredItems.length} / {data?.meta.total ?? 0} 项
+            {filteredItems.length} / {data?.meta.total ?? 0} templates
           </>
         }
       >
         <AdminSearchInput
           className="min-w-[220px] flex-1 max-w-md"
-          placeholder="搜索名称 / ID / 描述 / 分类"
+          placeholder="Search name / ID / description / category"
           value={q}
           onChange={setQ}
           onKeyDown={(e) => {
@@ -302,7 +302,7 @@ export function TemplatesPage() {
           }}
         />
         <AdminChipFilter
-          label="分类"
+          label="Category"
           value={categoryFilter}
           options={categoryOptions}
           onChange={(v) => {
@@ -318,20 +318,20 @@ export function TemplatesPage() {
             void load(1);
           }}
         >
-          筛选
+          Filter
         </Button>
       </AdminFilterBar>
 
       {loading ? (
         <div className="template-grid-loading">
           <Loader2 className="h-6 w-6 animate-spin text-[#67c23a]" />
-          <span>加载模板…</span>
+          <span>Loading templates…</span>
         </div>
       ) : filteredItems.length === 0 ? (
         <div className="template-grid-empty">
-          <p>暂无匹配的模板</p>
+          <p>No matching templates</p>
           <Button variant="outline" size="sm" onClick={openCreate}>
-            新建第一个模板
+            Create the first template
           </Button>
         </div>
       ) : (
@@ -371,9 +371,9 @@ export function TemplatesPage() {
 
       <AdminConfirmDialog
         open={Boolean(deleteTarget)}
-        title="删除模板"
-        description={deleteTarget ? `确认删除模板「${deleteTarget}」？已被项目引用的模板无法删除。` : undefined}
-        confirmLabel="删除"
+        title="Delete Template"
+        description={deleteTarget ? `Delete template "${deleteTarget}"? Templates referenced by projects cannot be deleted.` : undefined}
+        confirmLabel="Delete"
         loading={deleting}
         destructive
         onOpenChange={(next) => {

@@ -64,11 +64,11 @@ export function shortEndpoint(endpoint: string): string {
 }
 
 export function formatTaskDuration(milliseconds: number | null | undefined): string {
-  if (milliseconds == null || !Number.isFinite(milliseconds)) return "未记录";
+  if (milliseconds == null || !Number.isFinite(milliseconds)) return "Not recorded";
   const seconds = Math.max(0, Math.floor(milliseconds / 1000));
-  if (seconds < 60) return `${seconds}秒`;
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}分${seconds % 60}秒`;
-  return `${Math.floor(seconds / 3600)}小时${Math.floor((seconds % 3600) / 60)}分`;
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+  return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
 }
 
 function timestamp(value: string | null | undefined): number | null {
@@ -92,9 +92,9 @@ export function taskDurations(task: Pick<AdminTaskRow, "status" | "created_at" |
 
 export function taskBilling(task: Pick<AdminTaskRow, "billing_status" | "billing_estimate_fen" | "billing_charged_fen" | "billing_refunded_fen">) {
   const status = task.billing_status;
-  const labels: Record<string, string> = { none: "未预扣 · 尚未结算", frozen: "已冻结 · 尚未结算", settled: "已结算", skipped: "已跳过预扣 · 尚未结算" };
+  const labels: Record<string, string> = { none: "Not charged · Unsettled", frozen: "Frozen · Unsettled", settled: "Settled", skipped: "Pre-charge skipped · Unsettled" };
   return {
-    label: status ? labels[status] || status : "计费状态未记录",
+    label: status ? labels[status] || status : "Billing status not recorded",
     settled: status === "settled",
     estimateFen: task.billing_estimate_fen,
     frozenFen: status === "frozen" ? task.billing_estimate_fen : status ? 0 : undefined,
@@ -156,17 +156,17 @@ export function upstreamRecords(events: AdminTaskEvent[] | undefined): UpstreamR
 }
 
 export const UPSTREAM_PHASE_LABELS: Record<UpstreamPhase, string> = {
-  started: "开始请求", accepted: "上游响应", failed: "请求失败", poll: "查询结果",
+  started: "Request Started", accepted: "Upstream Response", failed: "Request Failed", poll: "Result Poll",
 };
 
 export function upstreamStateLabel(status: string): string {
   const labels: Record<string, string> = {
-    pending: "上游排队", queued: "上游排队", submitted: "上游排队", waiting: "上游排队",
-    running: "上游生成中", processing: "上游生成中", generating: "上游生成中", in_progress: "上游生成中",
-    succeeded: "上游完成", success: "上游完成", completed: "上游完成", done: "上游完成", finished: "上游完成",
-    failed: "上游失败", error: "上游失败", failure: "上游失败", cancelled: "上游已取消", canceled: "上游已取消",
+    pending: "Upstream Queued", queued: "Upstream Queued", submitted: "Upstream Queued", waiting: "Upstream Queued",
+    running: "Upstream Running", processing: "Upstream Running", generating: "Upstream Running", in_progress: "Upstream Running",
+    succeeded: "Upstream Completed", success: "Upstream Completed", completed: "Upstream Completed", done: "Upstream Completed", finished: "Upstream Completed",
+    failed: "Upstream Failed", error: "Upstream Failed", failure: "Upstream Failed", cancelled: "Upstream Cancelled", canceled: "Upstream Cancelled",
   };
-  return labels[status.toLowerCase()] || `上游状态：${redactTaskText(status)}`;
+  return labels[status.toLowerCase()] || `Upstream status: ${redactTaskText(status)}`;
 }
 
 export function groupUpstreamRecords(records: UpstreamRecord[]) {
@@ -212,6 +212,6 @@ export function taskUpstream(task: Pick<AdminTaskRow, "events" | "upstream_event
     modelFromRequest: Boolean(modelRecord),
     provider: providerRecord?.provider || textField(providerStep?.provider_name),
     providerTaskId,
-    phase: latest?.upstreamStatus ? upstreamStateLabel(latest.upstreamStatus) : latest ? UPSTREAM_PHASE_LABELS[latest.phase] : providerTaskId ? "已有上游任务 · HTTP未记录" : "尚无上游请求记录",
+    phase: latest?.upstreamStatus ? upstreamStateLabel(latest.upstreamStatus) : latest ? UPSTREAM_PHASE_LABELS[latest.phase] : providerTaskId ? "Upstream task exists · HTTP not recorded" : "No upstream request records",
   };
 }

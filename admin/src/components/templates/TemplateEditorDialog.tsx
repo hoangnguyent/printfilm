@@ -43,20 +43,20 @@ type TemplateEditorDialogProps = {
 type EditorTab = "basic" | "prompts" | "publish";
 
 const TABS: { id: EditorTab; label: string }[] = [
-  { id: "basic", label: "基础信息" },
-  { id: "prompts", label: "提示词" },
-  { id: "publish", label: "发布设置" },
+  { id: "basic", label: "Basic Info" },
+  { id: "prompts", label: "Prompts" },
+  { id: "publish", label: "Publishing" },
 ];
 
 const RATIO_OPTIONS = [
-  { value: "16:9", label: "16:9 横屏" },
-  { value: "9:16", label: "9:16 竖屏" },
-  { value: "1:1", label: "1:1 方形" },
+  { value: "16:9", label: "16:9 Landscape" },
+  { value: "9:16", label: "9:16 Portrait" },
+  { value: "1:1", label: "1:1 Square" },
   { value: "4:3", label: "4:3" },
   { value: "3:4", label: "3:4" },
 ];
 
-// 解析封面预览地址
+// Resolve the cover preview URL.
 function coverPreviewSrc(url: string): string {
   const trimmed = (url || "").trim();
   if (!trimmed) return "";
@@ -64,7 +64,7 @@ function coverPreviewSrc(url: string): string {
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
 }
 
-// 模板新建/编辑弹窗（分 Tab + 封面预览）
+// Template create/edit dialog with tabs and a cover preview.
 export function TemplateEditorDialog({
   open,
   saving,
@@ -90,16 +90,16 @@ export function TemplateEditorDialog({
       size="full"
       className="template-editor-dialog max-h-[92vh] overflow-hidden"
       bodyClassName="p-0 overflow-hidden"
-      title={editing ? `编辑模板 · ${editing.name}` : "新建模板"}
-      subtitle={editing ? editing.id : "填写基础信息与提示词，保存后立即生效"}
+      title={editing ? `Edit Template · ${editing.name}` : "Create Template"}
+      subtitle={editing ? editing.id : "Enter template details and prompts; changes take effect after saving."}
       footer={
         <>
           <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            取消
+            Cancel
           </Button>
           <Button disabled={saving} onClick={onSave}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {saving ? "保存中…" : "保存模板"}
+            {saving ? "Saving…" : "Save Template"}
           </Button>
         </>
       }
@@ -108,15 +108,15 @@ export function TemplateEditorDialog({
         <aside className="template-editor-preview">
           <div className="template-editor-preview-frame">
             {previewSrc ? (
-              <img src={previewSrc} alt="封面预览" className="template-editor-preview-img" />
+              <img src={previewSrc} alt="Cover preview" className="template-editor-preview-img" />
             ) : (
               <div className="template-editor-preview-empty">
                 <ImageOff className="h-10 w-10 text-[#c0c4cc]" />
-                <span>封面预览</span>
+                <span>Cover Preview</span>
               </div>
             )}
           </div>
-          <AdminField label="封面 URL" hint="支持相对路径（/static）或 HTTPS；建议 16:9 横图。">
+          <AdminField label="Cover URL" hint="Supports relative paths (/static) or HTTPS. A 16:9 landscape image is recommended.">
             <Input
               className="admin-input h-9"
               placeholder="/static/templates/covers/xxx.png"
@@ -146,23 +146,23 @@ export function TemplateEditorDialog({
             {tab === "basic" ? (
               <div className="template-editor-grid">
                 {!editing ? (
-                  <AdminField label="模板 ID" className="template-editor-field--full">
+                  <AdminField label="Template ID" className="template-editor-field--full">
                     <Input
                       className="admin-input h-9"
-                      placeholder="例如 live_street_interview"
+                      placeholder="e.g. live_street_interview"
                       value={form.id}
                       onChange={(e) => onChange({ id: e.target.value })}
                     />
                   </AdminField>
                 ) : null}
-                <AdminField label="名称" className="template-editor-field--full">
+                <AdminField label="Name" className="template-editor-field--full">
                   <Input
                     className="admin-input h-9"
                     value={form.name}
                     onChange={(e) => onChange({ name: e.target.value })}
                   />
                 </AdminField>
-                <AdminField label="描述" className="template-editor-field--full">
+                <AdminField label="Description" className="template-editor-field--full">
                   <Textarea
                     value={form.description}
                     onChange={(e) => onChange({ description: e.target.value })}
@@ -170,27 +170,27 @@ export function TemplateEditorDialog({
                   />
                 </AdminField>
                 <AdminField
-                  label="分类（逗号分隔）"
+                  label="Categories (comma-separated)"
                   hint={
                     categorySuggestions.length
-                      ? `常用：${categorySuggestions.slice(0, 8).join("、")}${categorySuggestions.length > 8 ? "…" : ""}`
+                      ? `Suggestions: ${categorySuggestions.slice(0, 8).join(", ")}${categorySuggestions.length > 8 ? "…" : ""}`
                       : undefined
                   }
                 >
                   <Input
                     className="admin-input h-9"
-                    placeholder="真人感,电影感,商业"
+                    placeholder="Realistic, cinematic, commercial"
                     value={form.category}
                     onChange={(e) => onChange({ category: e.target.value })}
                   />
                 </AdminField>
                 <AdminSelect
-                  label="默认画幅"
+                  label="Default Aspect Ratio"
                   value={form.default_ratio}
                   options={RATIO_OPTIONS}
                   onChange={(v) => onChange({ default_ratio: v })}
                 />
-                <AdminField label="排序">
+                <AdminField label="Sort Order">
                   <Input
                     className="admin-input h-9"
                     type="number"
@@ -198,7 +198,7 @@ export function TemplateEditorDialog({
                     onChange={(e) => onChange({ sort_order: Number(e.target.value) })}
                   />
                 </AdminField>
-                <AdminField label="镜头时长 min（秒）">
+                <AdminField label="Minimum Shot Duration (seconds)">
                   <Input
                     className="admin-input h-9"
                     type="number"
@@ -206,7 +206,7 @@ export function TemplateEditorDialog({
                     onChange={(e) => onChange({ shot_duration_min: Number(e.target.value) })}
                   />
                 </AdminField>
-                <AdminField label="镜头时长 max（秒）">
+                <AdminField label="Maximum Shot Duration (seconds)">
                   <Input
                     className="admin-input h-9"
                     type="number"
@@ -219,35 +219,35 @@ export function TemplateEditorDialog({
 
             {tab === "prompts" ? (
               <div className="template-editor-grid template-editor-grid--prompts">
-                <AdminField label="风格提示词" className="template-editor-field--full">
+                <AdminField label="Style Prompt" className="template-editor-field--full">
                   <Textarea
                     value={form.style_prefix}
                     onChange={(e) => onChange({ style_prefix: e.target.value })}
                     className="min-h-[100px] font-mono text-[13px]"
                   />
                 </AdminField>
-                <AdminField label="角色提示词" className="template-editor-field--full">
+                <AdminField label="Character Prompt" className="template-editor-field--full">
                   <Textarea
                     value={form.character_prompt}
                     onChange={(e) => onChange({ character_prompt: e.target.value })}
                     className="min-h-[88px] font-mono text-[13px]"
                   />
                 </AdminField>
-                <AdminField label="额外提示词" className="template-editor-field--full">
+                <AdminField label="Additional Prompt" className="template-editor-field--full">
                   <Textarea
                     value={form.extra_prompt}
                     onChange={(e) => onChange({ extra_prompt: e.target.value })}
                     className="min-h-[88px] font-mono text-[13px]"
                   />
                 </AdminField>
-                <AdminField label="LLM 系统附加说明" className="template-editor-field--full">
+                <AdminField label="LLM System Addendum" className="template-editor-field--full">
                   <Textarea
                     value={form.llm_system_addon}
                     onChange={(e) => onChange({ llm_system_addon: e.target.value })}
                     className="min-h-[88px] font-mono text-[13px]"
                   />
                 </AdminField>
-                <AdminField label="负面提示词" className="template-editor-field--full">
+                <AdminField label="Negative Prompt" className="template-editor-field--full">
                   <Textarea
                     value={form.negative_prompt}
                     onChange={(e) => onChange({ negative_prompt: e.target.value })}
@@ -261,21 +261,21 @@ export function TemplateEditorDialog({
               <div className="template-editor-publish">
                 <div className="template-editor-publish-row">
                   <div>
-                    <strong>上架展示</strong>
-                    <p>关闭后用户端选模板列表不可见，已有项目不受影响。</p>
+                    <strong>Published</strong>
+                    <p>When disabled, this template is hidden from the user-facing template list. Existing projects are unaffected.</p>
                   </div>
                   <Switch checked={form.is_active} onCheckedChange={(v) => onChange({ is_active: v })} />
                 </div>
                 <div className="template-editor-publish-row">
                   <div>
-                    <strong>Premium 模板</strong>
-                    <p>标记为高级模板，可用于权限或计费策略区分。</p>
+                    <strong>Premium Template</strong>
+                    <p>Mark as a premium template for access-control or billing policies.</p>
                   </div>
                   <Switch checked={form.is_premium} onCheckedChange={(v) => onChange({ is_premium: v })} />
                 </div>
                 {editing ? (
                   <details className="mt-4 rounded-lg border p-3">
-                    <summary className="cursor-pointer text-sm font-medium">高级配置（只读）</summary>
+                    <summary className="cursor-pointer text-sm font-medium">Advanced Configuration (Read-only)</summary>
                     <div className="mt-3 space-y-3">
                       <div>
                         <div className="mb-1 text-xs text-[var(--admin-muted)]">seedance_config</div>

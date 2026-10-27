@@ -35,25 +35,25 @@ type DetailTab = "overview" | "upstream" | "billing" | "steps" | "events" | "jso
 const TERMINAL = new Set(["succeeded", "failed", "cancelled"]);
 
 const PAYLOAD_FIELD_LABELS: Record<string, string> = {
-  prompt: "提示词",
-  name: "名称",
-  kind: "类型",
-  model_id: "模型",
-  image_style_id: "风格",
-  aspect_ratio: "画幅",
-  resolution: "分辨率",
-  duration_sec: "时长(秒)",
-  duration: "时长",
-  force: "强制重跑",
-  total: "总数",
-  project_id: "科普项目 ID",
-  user_id: "用户 ID",
-  asset_id: "资产 ID",
-  episode_count: "集数",
-  phase: "阶段",
-  sync: "同步",
-  refresh_prompts: "刷新提示词",
-  reextract_props: "重抽道具",
+  prompt: "Prompt",
+  name: "Name",
+  kind: "Type",
+  model_id: "Model",
+  image_style_id: "Image Style",
+  aspect_ratio: "Aspect Ratio",
+  resolution: "Resolution",
+  duration_sec: "Duration (seconds)",
+  duration: "Duration",
+  force: "Force Retry",
+  total: "Total",
+  project_id: "Short Video Project ID",
+  user_id: "User ID",
+  asset_id: "Asset ID",
+  episode_count: "Episode Count",
+  phase: "Phase",
+  sync: "Sync",
+  refresh_prompts: "Refresh Prompts",
+  reextract_props: "Re-extract Props",
 };
 
 // 格式化时间为本地字符串
@@ -68,7 +68,7 @@ function fmtJson(value: unknown): string {
 }
 
 function money(value: number | null | undefined): string {
-  return value == null ? "未记录" : `¥${fenToYuan(value)}`;
+  return value == null ? "Not recorded" : `¥${fenToYuan(value)}`;
 }
 
 // 仅在有值时渲染一行定义列表项
@@ -114,7 +114,7 @@ function payloadSummaryRows(
     const raw = payload[key];
     if (raw == null || raw === "") continue;
     if (typeof raw === "boolean") {
-      rows.push({ key, label, value: raw ? "是" : "否" });
+      rows.push({ key, label, value: raw ? "Yes" : "No" });
       continue;
     }
     const text = String(raw).trim();
@@ -138,7 +138,7 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
     try {
       setTask(await api<AdminTaskDetail>(`/api/admin/tasks/${id}`));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "加载任务详情失败");
+      toast.error(err instanceof Error ? err.message : "Failed to load task details");
       onOpenChange(false);
     } finally {
       setLoading(false);
@@ -190,21 +190,21 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
 
   async function handleCancel() {
     if (!task || !canCancel) return;
-    if (!window.confirm(`确定取消任务 #${task.id}？`)) return;
+    if (!window.confirm(`Cancel task #${task.id}?`)) return;
     setCancelling(true);
     try {
       const updated = await api<AdminTaskDetail>(`/api/admin/tasks/${task.id}/cancel`, { method: "POST" });
       setTask(updated);
-      toast.success("已提交取消请求");
+      toast.success("Cancellation request submitted");
       onCancelled?.();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "取消失败");
+      toast.error(err instanceof Error ? err.message : "Failed to cancel task");
     } finally {
       setCancelling(false);
     }
   }
 
-  const title = task ? `任务 #${task.id} · ${taskDomainLabel(task.domain)}` : "任务详情";
+  const title = task ? `Task #${task.id} · ${taskDomainLabel(task.domain)}` : "Task Details";
 
   return (
     <AdminModal
@@ -225,18 +225,18 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
       footer={
         <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            关闭
+            Close
           </Button>
           {taskId ? (
             <Button variant="outline" disabled={loading} onClick={() => void loadDetail(taskId)}>
               <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
-              刷新
+              Refresh
             </Button>
           ) : null}
           {canCancel ? (
             <Button variant="destructive" disabled={cancelling} onClick={() => void handleCancel()}>
               {cancelling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Ban className="mr-2 h-4 w-4" />}
-              取消任务
+              Cancel Task
             </Button>
           ) : null}
         </>
@@ -245,7 +245,7 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
       {loading && !task ? (
         <div className="task-detail-loading">
           <Loader2 className="h-6 w-6 animate-spin text-[#67c23a]" />
-          <span>加载任务详情…</span>
+          <span>Loading task details…</span>
         </div>
       ) : task ? (
         <Tabs className="task-detail-body" value={tab} onValueChange={(value) => setTab(value as DetailTab)}>
@@ -253,12 +253,12 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
           <TabsList className="task-detail-tabs !h-auto !justify-start !rounded-none !bg-white !p-0">
             {(
               [
-                ["overview", "概览"],
-                ["upstream", "上游请求"],
-                ["billing", `计费 (${task.usage_lines?.length ?? 0})`],
-                ["steps", `步骤 (${task.steps?.length ?? 0})`],
-                ["events", `事件 (${task.events_total ?? task.events?.length ?? 0})`],
-                ["json", "任务 JSON（脱敏）"],
+                ["overview", "Overview"],
+                ["upstream", "Upstream Requests"],
+                ["billing", `Billing (${task.usage_lines?.length ?? 0})`],
+                ["steps", `Steps (${task.steps?.length ?? 0})`],
+                ["events", `Events (${task.events_total ?? task.events?.length ?? 0})`],
+                ["json", "Task JSON (Redacted)"],
               ] as const
             ).map(([key, label]) => (
               <TabsTrigger
@@ -276,8 +276,8 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
               <div className="task-detail-grid">
                 {waitingActivation || task.error_code || task.error_message ? (
                   <section className="task-detail-section task-detail-section--full">
-                    <h4>异常与提示</h4>
-                    {waitingActivation ? <p className="task-detail-meta !mt-0">任务尚未激活，等待前置条件或可用并发空位。</p> : null}
+                    <h4>Issues & Notes</h4>
+                    {waitingActivation ? <p className="task-detail-meta !mt-0">Task is not active yet; waiting for prerequisites or an available concurrency slot.</p> : null}
                     {task.error_code || task.error_message ? (
                       <pre className="task-detail-error">
                         {redactTaskText([task.error_code, task.error_message].filter(Boolean).join(" · "))}
@@ -286,11 +286,11 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                   </section>
                 ) : null}
 
-                <DetailSection title="调度">
-                  <DlRow label="优先级">{task.priority}</DlRow>
+                <DetailSection title="Scheduling">
+                  <DlRow label="Priority">{task.priority}</DlRow>
                   <DlRow label="scheduled_at">{task.scheduled_at ? fmtTime(task.scheduled_at) : null}</DlRow>
                   <DlRow label="next_action_at">{task.next_action_at ? fmtTime(task.next_action_at) : null}</DlRow>
-                  <DlRow label="租约到期">{task.lease_until ? fmtTime(task.lease_until) : null}</DlRow>
+                  <DlRow label="Lease Expires">{task.lease_until ? fmtTime(task.lease_until) : null}</DlRow>
                   <DlRow label="provider_task_id">
                     {task.provider_task_id ? (
                       <span className="font-mono text-xs break-all">{redactTaskText(task.provider_task_id)}</span>
@@ -298,26 +298,26 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                   </DlRow>
                 </DetailSection>
 
-                <DetailSection title="关联实体">
-                  <DlRow label="用户">
+                <DetailSection title="Related Entities">
+                  <DlRow label="User">
                     <AdminEntityLink kind="user" id={task.requested_by} label={task.user_email ?? undefined} />
                   </DlRow>
-                  <DlRow label="漫剧项目">
+                  <DlRow label="Drama Project">
                     {task.drama_project_id ? <AdminEntityLink kind="drama" id={task.drama_project_id} /> : null}
                   </DlRow>
-                  <DlRow label="资产">
+                  <DlRow label="Asset">
                     {task.asset_id ? <AdminEntityLink kind="drama_asset" id={task.asset_id} /> : null}
                   </DlRow>
-                  <DlRow label="剧本">{task.script_id ? `#${task.script_id}` : null}</DlRow>
-                  <DlRow label="分集">{task.episode_id ? `#${task.episode_id}` : null}</DlRow>
-                  <DlRow label="分镜">{task.fragment_id ? `#${task.fragment_id}` : null}</DlRow>
-                  <DlRow label="科普项目">
+                  <DlRow label="Script">{task.script_id ? `#${task.script_id}` : null}</DlRow>
+                  <DlRow label="Episode">{task.episode_id ? `#${task.episode_id}` : null}</DlRow>
+                  <DlRow label="Storyboard">{task.fragment_id ? `#${task.fragment_id}` : null}</DlRow>
+                  <DlRow label="Short Video Project">
                     {task.project_id ? <AdminEntityLink kind="project" id={task.project_id} /> : null}
                   </DlRow>
-                  <DlRow label="镜头">{task.shot_id ? `#${task.shot_id}` : null}</DlRow>
+                  <DlRow label="Shot">{task.shot_id ? `#${task.shot_id}` : null}</DlRow>
                 </DetailSection>
 
-                <DetailSection title="标识">
+                <DetailSection title="Identifiers">
                   <DlRow label="dedupe_key">
                     {task.dedupe_key ? <span className="font-mono text-xs break-all">{task.dedupe_key}</span> : null}
                   </DlRow>
@@ -332,14 +332,14 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                 </DetailSection>
 
                 <section className="task-detail-section task-detail-section--full">
-                  <h4>时间线</h4>
+                  <h4>Timeline</h4>
                   <ol className="task-timeline">
                     {(
                       [
-                        ["创建", task.created_at],
-                        ["开始", task.started_at],
-                        ["结束", task.finished_at],
-                        ["更新", task.updated_at],
+                        ["Created", task.created_at],
+                        ["Started", task.started_at],
+                        ["Finished", task.finished_at],
+                        ["Updated", task.updated_at],
                       ] as const
                     ).map(([label, value]) => (
                       <li key={label} className={cn(value && "is-reached")}>
@@ -351,8 +351,8 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                 </section>
 
                 <section className="task-detail-section task-detail-section--full">
-                  <h4>任务参数（入队 payload）</h4>
-                  <p className="mb-3 text-xs text-[var(--admin-muted)]">这是内部调度参数；实际发往上游的请求请查看“上游请求”。</p>
+                  <h4>Task Parameters (Enqueued Payload)</h4>
+                  <p className="mb-3 text-xs text-[var(--admin-muted)]">These are internal scheduling parameters. See “Upstream Requests” for the actual request sent to the provider.</p>
                   {payloadRows.length > 0 ? (
                     <dl className="task-detail-dl task-detail-dl--payload mb-3">
                       {payloadRows.map((row) => (
@@ -368,16 +368,16 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                   {hasJsonContent(task.payload) ? (
                     <pre className="task-detail-json">{fmtJson(task.payload)}</pre>
                   ) : (
-                    <p className="task-detail-meta">未记录任务参数</p>
+                    <p className="task-detail-meta">No task parameters recorded</p>
                   )}
                 </section>
 
                 <section className="task-detail-section task-detail-section--full">
-                  <h4>结果</h4>
+                  <h4>Result</h4>
                   {hasJsonContent(task.result_payload) ? (
                     <pre className="task-detail-json">{fmtJson(task.result_payload)}</pre>
                   ) : (
-                    <p className="task-detail-meta">暂无结果（未完成或未回写 result_payload）</p>
+                    <p className="task-detail-meta">No result available (task may be incomplete or result_payload was not written)</p>
                   )}
                 </section>
               </div>
@@ -388,53 +388,53 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
             {tab === "billing" ? (
               <div className="task-detail-grid">
                 <section className="task-detail-section">
-                  <h4>结算摘要</h4>
+                  <h4>Settlement Summary</h4>
                   <dl className="task-detail-dl">
                     <div>
-                      <dt>计费状态</dt>
+                      <dt>Billing Status</dt>
                       <dd><Badge variant={billing.settled ? "success" : "warning"}>{billing.label}</Badge></dd>
                     </div>
                     <div>
-                      <dt>预估</dt>
+                      <dt>Estimated</dt>
                       <dd>{money(billing.estimateFen)}</dd>
                     </div>
                     <div>
-                      <dt>当前冻结</dt>
+                      <dt>Currently Frozen</dt>
                       <dd>{money(billing.frozenFen)}</dd>
                     </div>
                     <div>
-                      <dt>实扣</dt>
-                      <dd>{billing.settled || (billing.chargedFen ?? 0) > 0 ? money(billing.chargedFen) : "尚未结算"}</dd>
+                      <dt>Charged</dt>
+                      <dd>{billing.settled || (billing.chargedFen ?? 0) > 0 ? money(billing.chargedFen) : "Not settled yet"}</dd>
                     </div>
                     <div>
-                      <dt>退回</dt>
-                      <dd>{billing.settled || (billing.refundedFen ?? 0) > 0 ? money(billing.refundedFen) : "尚未结算"}</dd>
+                      <dt>Refunded</dt>
+                      <dd>{billing.settled || (billing.refundedFen ?? 0) > 0 ? money(billing.refundedFen) : "Not settled yet"}</dd>
                     </div>
                   </dl>
                 </section>
 
                 <section className="task-detail-section task-detail-section--full">
-                  <h4>用量明细</h4>
-                  <p className="mb-3 text-xs text-[var(--admin-muted)]">用量记录表示调用计费依据；钱包实际扣款与退还以任务结算摘要为准。</p>
+                  <h4>Usage Details</h4>
+                  <p className="mb-3 text-xs text-[var(--admin-muted)]">Usage records explain call billing. Actual wallet charges and refunds are shown in the settlement summary.</p>
                   <div className="admin-table-wrap">
                     <table>
                       <thead>
                         <tr>
-                          <th>时间</th>
-                          <th>能力</th>
+                          <th>Time</th>
+                          <th>Capability</th>
                           <th>billing_key</th>
-                          <th>模型</th>
+                          <th>Model</th>
                           <th>Tokens</th>
-                          <th>扣费</th>
-                          <th>上游成本</th>
-                          <th>计费依据</th>
+                          <th>Charge</th>
+                          <th>Upstream Cost</th>
+                          <th>Billing Basis</th>
                         </tr>
                       </thead>
                       <tbody>
                         {(task.usage_lines?.length ?? 0) === 0 ? (
                           <tr>
                             <td colSpan={8} className="text-center text-sm text-[#909399]">
-                              暂无用量记录
+                              No usage records
                             </td>
                           </tr>
                         ) : (
@@ -447,7 +447,7 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                               <td>{line.total_tokens ?? 0}</td>
                               <td>¥{fenToYuan(line.charge_fen ?? 0)}</td>
                               <td>¥{fenToYuan(line.cost_fen ?? 0)}</td>
-                              <td>{line.billing_basis_label ?? (line.estimated ? "估算" : "实测")}</td>
+                              <td>{line.billing_basis_label ?? (line.estimated ? "Estimated" : "Actual")}</td>
                             </tr>
                           ))
                         )}
@@ -463,19 +463,19 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                 <table>
                   <thead>
                     <tr>
-                      <th>步骤</th>
-                      <th>状态</th>
-                      <th>尝试</th>
+                      <th>Step</th>
+                      <th>Status</th>
+                      <th>Attempts</th>
                       <th>Provider</th>
-                      <th>错误</th>
-                      <th>时间</th>
+                      <th>Error</th>
+                      <th>Time</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(task.steps?.length ?? 0) === 0 ? (
                       <tr>
                         <td colSpan={6} className="text-center text-sm text-[#909399]">
-                          暂无步骤记录
+                          No step records
                         </td>
                       </tr>
                     ) : (
@@ -499,8 +499,8 @@ export function TaskDetailDialog({ taskId, open, onOpenChange, onCancelled }: Ta
                             {redactTaskText(step.error_message ?? "—")}
                           </td>
                           <td className="text-[11px] text-[#909399]">
-                            <div>始 {fmtTime(step.started_at)}</div>
-                            <div>终 {fmtTime(step.finished_at)}</div>
+                            <div>Start {fmtTime(step.started_at)}</div>
+                            <div>End {fmtTime(step.finished_at)}</div>
                           </td>
                         </tr>
                       ))

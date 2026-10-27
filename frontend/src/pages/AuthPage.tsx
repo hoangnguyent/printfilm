@@ -108,7 +108,8 @@ export default function AuthPage() {
         switchMode('login')
         setNotice(t('auth.resetSuccess'))
       } catch (err) {
-        setError(err instanceof Error ? err.message : t('common.fail'))
+        const message = err instanceof Error ? err.message : ''
+        setError(message || t('common.fail'))
       } finally {
         setLoading(false)
       }
@@ -138,7 +139,12 @@ export default function AuthPage() {
       localStorage.setItem('token', res.access_token)
       nav(nextPath)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.fail'))
+      const message = err instanceof Error ? err.message : ''
+      setError(
+        mode === 'register' && message === '邮箱已注册'
+          ? t('auth.emailAlreadyRegistered')
+          : message || t('common.fail'),
+      )
     } finally {
       setLoading(false)
     }

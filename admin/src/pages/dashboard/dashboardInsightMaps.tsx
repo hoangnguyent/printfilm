@@ -16,20 +16,20 @@ import type { DashboardInsightItem, DashboardInsightTone } from "@/pages/dashboa
 import { formatDashboardMetric, readBucketMetric } from "@/pages/dashboard/dashboardMetrics";
 
 const CAPABILITY_META: Record<string, { label: string; icon: LucideIcon; tone: DashboardInsightTone }> = {
-  llm: { label: "LLM 文本", icon: MessageSquareText, tone: "purple" },
-  image: { label: "生图", icon: Image, tone: "blue" },
-  video: { label: "视频", icon: Video, tone: "teal" },
-  tts: { label: "配音", icon: Mic, tone: "sand" },
-  unknown: { label: "其他", icon: Wrench, tone: "slate" },
+  llm: { label: "LLM Text", icon: MessageSquareText, tone: "purple" },
+  image: { label: "Image Generation", icon: Image, tone: "blue" },
+  video: { label: "Video", icon: Video, tone: "teal" },
+  tts: { label: "Voiceover", icon: Mic, tone: "sand" },
+  unknown: { label: "Other", icon: Wrench, tone: "slate" },
 };
 
 const DOMAIN_META: Record<string, { label: string; icon: LucideIcon; tone: DashboardInsightTone }> = {
-  drama: { label: "漫剧", icon: Film, tone: "teal" },
-  kepu: { label: "AI短视频", icon: Clapperboard, tone: "blue" },
-  api: { label: "开放 API", icon: Webhook, tone: "purple" },
-  tools: { label: "工具", icon: Wrench, tone: "sand" },
-  studio: { label: "工作室", icon: Palette, tone: "mint" },
-  unknown: { label: "其他", icon: Wrench, tone: "slate" },
+  drama: { label: "Drama", icon: Film, tone: "teal" },
+  kepu: { label: "AI Short Video", icon: Clapperboard, tone: "blue" },
+  api: { label: "Open API", icon: Webhook, tone: "purple" },
+  tools: { label: "Tools", icon: Wrench, tone: "sand" },
+  studio: { label: "Studio", icon: Palette, tone: "mint" },
+  unknown: { label: "Other", icon: Wrench, tone: "slate" },
 };
 
 function buildInsightItems(
@@ -51,12 +51,12 @@ function buildInsightItems(
     .map(({ row, value }) => {
       const meta = metaMap[row.key] ?? metaMap.unknown;
       const sharePct = total > 0 ? ((value / total) * 100).toFixed(1) : null;
-      const shareHint = sharePct ? `占比 ${sharePct}%` : undefined;
+      const shareHint = sharePct ? `${sharePct}% of total` : undefined;
       return {
         key: row.key,
         label: labelForKey?.(row.key) ?? meta.label,
         value: formatDashboardMetric(value, metric),
-        hint: [shareHint, `${row.calls.toLocaleString()} 次调用`].filter(Boolean).join(" · "),
+        hint: [shareHint, `${row.calls.toLocaleString()} calls`].filter(Boolean).join(" · "),
         icon: meta.icon,
         tone: meta.tone,
       };

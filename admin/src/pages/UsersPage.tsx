@@ -55,7 +55,7 @@ export function UsersPage() {
       const res = await api<ListRes>(`/api/admin/users?${params}`);
       setData(res);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "加载失败");
+      toast.error(err instanceof Error ? err.message : "Failed to load");
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ export function UsersPage() {
       .then(setStats)
       .catch((err) => {
         setStats(null);
-        toast.error(err instanceof Error ? err.message : "统计加载失败");
+        toast.error(err instanceof Error ? err.message : "Failed to load statistics");
       });
   }, []);
 
@@ -105,13 +105,13 @@ export function UsersPage() {
       if (amountRaw) {
         const amountYuan = parseFloat(amountRaw);
         if (Number.isNaN(amountYuan) || amountYuan < 0) {
-          throw new Error("调账金额须为非负数字");
+          throw new Error("Adjustment amount must be a non-negative number");
         }
         const amountFen = Math.round(amountYuan * 100);
         if (amountFen > 0) {
           const signed = form.balance_dir === "decrease" ? -amountFen : amountFen;
           if (form.balance_dir === "decrease" && signed + editing.balance_fen < 0) {
-            throw new Error("减少后余额不能为负");
+            throw new Error("Balance cannot be negative after the deduction");
           }
           payload.balance_delta_fen = signed;
           payload.balance_note = form.balance_note || undefined;
@@ -122,11 +122,11 @@ export function UsersPage() {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
-      toast.success(payload.balance_delta_fen ? "已调账并保存" : "已保存");
+      toast.success(payload.balance_delta_fen ? "Balance adjusted and saved" : "Saved");
       setEditing(null);
       await load();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "保存失败");
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
       setSaving(false);
     }
@@ -139,37 +139,37 @@ export function UsersPage() {
 
   return (
     <div className="admin-list-page">
-      <PageHeader description="搜索用户，调整角色与余额" />
+      <PageHeader description="Search users and manage roles and balances" />
 
       <AdminFilterBar>
         <AdminSearchInput
           value={q}
           onChange={setQ}
-          placeholder="搜索邮箱 / 昵称 / 账号 ID"
+          placeholder="Search email / name / account ID"
           onKeyDown={(e) => {
             if (e.key === "Enter") applyFilters();
           }}
         />
         <Select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-          <option value="">全部角色</option>
+          <option value="">All roles</option>
           <option value="user">user</option>
           <option value="admin">admin</option>
         </Select>
         <Button size="sm" className="admin-filter-action" onClick={applyFilters} disabled={loading}>
-          {loading ? "加载中…" : "搜索"}
+          {loading ? "Loading…" : "Search"}
         </Button>
       </AdminFilterBar>
 
       <AdminListStats
         items={[
-          { label: "总用户数", value: stats?.user_count ?? (loading ? "…" : "—") },
+          { label: "Total Users", value: stats?.user_count ?? (loading ? "…" : "—") },
           {
-            label: "本月调用",
+            label: "Calls This Month",
             value: stats != null ? (stats.usage_calls_month ?? 0) : loading ? "…" : "—",
-            hint: stats ? `今日 ${stats.usage_calls_today ?? 0} 次` : undefined,
+            hint: stats ? `Today: ${stats.usage_calls_today ?? 0}` : undefined,
           },
           {
-            label: "累计调用",
+            label: "Total Calls",
             value: stats != null ? (stats.usage_calls_total ?? 0) : loading ? "…" : "—",
           },
         ]}
@@ -179,15 +179,15 @@ export function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>账号 ID</TableHead>
-              <TableHead>邮箱</TableHead>
-              <TableHead>昵称</TableHead>
-              <TableHead>手机</TableHead>
-              <TableHead>余额</TableHead>
-              <TableHead>冻结</TableHead>
-              <TableHead>角色</TableHead>
-              <TableHead>注册时间</TableHead>
-              <TableHead className="w-[140px]">操作</TableHead>
+              <TableHead>Account ID</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Balance</TableHead>
+              <TableHead>On Hold</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Registered</TableHead>
+              <TableHead className="w-[140px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -215,10 +215,10 @@ export function UsersPage() {
                         userDetail.open(u.id);
                       }}
                     >
-                      查看
+                      View
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => openEdit(u)}>
-                      编辑
+                      Edit
                     </Button>
                   </div>
                 </TableCell>
@@ -227,7 +227,7 @@ export function UsersPage() {
             {!loading && (data?.items.length ?? 0) === 0 && (
               <TableRow>
                 <TableCell colSpan={9} className="p-0">
-                  <EmptyState title="暂无用户" description="试试换个关键词搜索" />
+                  <EmptyState title="No users found" description="Try searching for another term" />
                 </TableCell>
               </TableRow>
             )}
@@ -261,25 +261,25 @@ export function UsersPage() {
         open={!!editing}
         onOpenChange={(open) => !open && setEditing(null)}
         size="md"
-        title="编辑用户"
+        title="Edit User"
         subtitle={editing?.email}
         footer={
           <Button className="w-full sm:w-auto" disabled={saving} onClick={() => void saveEdit()}>
-            {saving ? "保存中…" : "保存修改"}
+            {saving ? "Saving…" : "Save Changes"}
           </Button>
         }
       >
         <div className="admin-form-grid admin-form-grid--2">
-          <AdminField label="角色">
+          <AdminField label="Role">
             <Select value={form.role} onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}>
               <option value="user">user</option>
               <option value="admin">admin</option>
             </Select>
           </AdminField>
-          <AdminField label="当前余额" hint="只读">
+          <AdminField label="Current Balance" hint="Read-only">
             <Input value={editing ? `¥${fenToYuan(editing.balance_fen)}` : "—"} disabled readOnly />
           </AdminField>
-          <AdminField label="调账方向">
+          <AdminField label="Adjustment">
             <Select
               value={form.balance_dir}
               onChange={(e) =>
@@ -289,18 +289,18 @@ export function UsersPage() {
                 }))
               }
             >
-              <option value="increase">增加</option>
-              <option value="decrease">减少</option>
+              <option value="increase">Add</option>
+              <option value="decrease">Deduct</option>
             </Select>
           </AdminField>
           <AdminField
-            label="调账金额（元）"
+            label="Adjustment Amount (CNY)"
             hint={
               form.balance_amount_yuan.trim()
                 ? form.balance_dir === "increase"
-                  ? "保存后余额将增加该金额"
-                  : "保存后余额将减少该金额"
-                : "留空则不改余额"
+                  ? "This amount will be added to the balance"
+                  : "This amount will be deducted from the balance"
+                : "Leave blank to keep the balance unchanged"
             }
           >
             <Input
@@ -310,14 +310,14 @@ export function UsersPage() {
               inputMode="decimal"
               value={form.balance_amount_yuan}
               onChange={(e) => setForm((f) => ({ ...f, balance_amount_yuan: e.target.value }))}
-              placeholder="例如 100"
+              placeholder="e.g. 100"
             />
           </AdminField>
-          <AdminField label="调账备注" hint="可选；仅改余额时写入流水">
+          <AdminField label="Adjustment Note" hint="Optional; recorded in the ledger only when the balance changes">
             <Input
               value={form.balance_note}
               onChange={(e) => setForm((f) => ({ ...f, balance_note: e.target.value }))}
-              placeholder="管理员备注"
+              placeholder="Admin note"
             />
           </AdminField>
         </div>

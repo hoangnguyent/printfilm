@@ -106,7 +106,7 @@ export default function WeChatGroupFab() {
         }}
         aria-expanded={open}
         aria-label={t('wechatGroup.open')}
-        title={`${t('wechatGroup.open')}（可拖动）`}
+        title={`${t('wechatGroup.open')} (Draggable)`}
         {...bindDrag}
       >
         <WeChatIcon />

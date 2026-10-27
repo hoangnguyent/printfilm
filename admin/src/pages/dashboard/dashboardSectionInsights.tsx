@@ -19,7 +19,7 @@ import { calcProfitFen, sumDailyUsage, sumProjectStatuses } from "@/pages/dashbo
 import { fenToYuan } from "@/lib/utils";
 import { projectStatusLabel } from "@/lib/statusLabels";
 
-/** 财务账单 Tab 图标指标 */
+/** Icon metrics for the finance dashboard tab */
 export function buildFinanceInsights(
   stats: AdminStats | null,
   upstream: AdminUpstreamUsage | null,
@@ -37,33 +37,33 @@ export function buildFinanceInsights(
   const items: DashboardInsightItem[] = [
     {
       key: "paid-total",
-      label: "累计充值",
+      label: "Total Top-ups",
       value: `¥${fenToYuan(stats.order_paid_total_fen)}`,
-      hint: `今日 ¥${fenToYuan(stats.order_paid_today_fen)}`,
+      hint: `Today ¥${fenToYuan(stats.order_paid_today_fen)}`,
       icon: Banknote,
       tone: "blue",
     },
     {
       key: "charge-month",
-      label: "本月扣费",
+      label: "Charges This Month",
       value: `¥${fenToYuan(monthCharge)}`,
-      hint: `今日 ¥${fenToYuan(stats.usage_charge_today_fen ?? 0)}`,
+      hint: `Today ¥${fenToYuan(stats.usage_charge_today_fen ?? 0)}`,
       icon: Zap,
       tone: "purple",
     },
     {
       key: "cost-month",
-      label: "本月成本",
+      label: "Cost This Month",
       value: `¥${fenToYuan(monthCost)}`,
-      hint: `今日 ¥${fenToYuan(stats.usage_cost_today_fen ?? 0)}`,
+      hint: `Today ¥${fenToYuan(stats.usage_cost_today_fen ?? 0)}`,
       icon: Wallet,
       tone: "sand",
     },
     {
       key: "profit-month",
-      label: "本月毛利",
+      label: "Gross Profit This Month",
       value: `¥${fenToYuan(profitFen)}`,
-      hint: monthCharge > 0 ? `毛利率 ${((profitFen / monthCharge) * 100).toFixed(1)}%` : undefined,
+      hint: monthCharge > 0 ? `Margin ${((profitFen / monthCharge) * 100).toFixed(1)}%` : undefined,
       icon: Percent,
       tone: profitFen >= 0 ? "mint" : "rose",
     },
@@ -72,9 +72,9 @@ export function buildFinanceInsights(
   if (upstream?.configured && officialCost7 > 0) {
     items.push({
       key: "upstream-delta",
-      label: "近 7 日成本差额",
+      label: "Cost Difference (Last 7 Days)",
       value: `¥${fenToYuan(delta7)}`,
-      hint: `本地 ¥${fenToYuan(localCost7)} / 官方 ¥${fenToYuan(officialCost7)}`,
+      hint: `Local ¥${fenToYuan(localCost7)} / Official ¥${fenToYuan(officialCost7)}`,
       icon: delta7 >= 0 ? TrendingUp : TrendingDown,
       tone: delta7 >= 0 ? "teal" : "rose",
     });
@@ -82,9 +82,9 @@ export function buildFinanceInsights(
 
   items.push({
     key: "paid-today",
-    label: "今日到账",
+    label: "Received Today",
     value: `¥${fenToYuan(stats.order_paid_today_fen)}`,
-    hint: "充值订单",
+    hint: "Top-up orders",
     icon: CircleDollarSign,
     tone: "teal",
   });
@@ -101,7 +101,7 @@ const STATUS_META: Record<string, { icon: LucideIcon; tone: DashboardInsightItem
   VIDEOING: { icon: Activity, tone: "teal" },
 };
 
-/** 项目运维 Tab 图标指标 */
+/** Icon metrics for the project operations tab */
 export function buildProjectInsights(stats: AdminStats | null, periodDaily: ReturnType<typeof sumDailyUsage>): DashboardInsightItem[] {
   if (!stats) return [];
 
@@ -109,33 +109,33 @@ export function buildProjectInsights(stats: AdminStats | null, periodDaily: Retu
   const items: DashboardInsightItem[] = [
     {
       key: "kepu-total",
-      label: "科普项目",
+      label: "Short Video Projects",
       value: kepuTotal,
-      hint: `漫剧 ${stats.drama_project_count ?? 0} 部`,
+      hint: `${stats.drama_project_count ?? 0} drama projects`,
       icon: Clapperboard,
       tone: "blue",
     },
     {
       key: "drama-total",
-      label: "漫剧项目",
+      label: "Drama Projects",
       value: stats.drama_project_count ?? 0,
-      hint: "全站项目",
+      hint: "All projects",
       icon: Film,
       tone: "teal",
     },
     {
       key: "calls-today",
-      label: "今日调用",
+      label: "Calls Today",
       value: (stats.usage_calls_today ?? 0).toLocaleString(),
-      hint: `本月 ${stats.usage_calls_month ?? 0} 次`,
+      hint: `This month: ${stats.usage_calls_month ?? 0}`,
       icon: Activity,
       tone: "mint",
     },
     {
       key: "calls-total",
-      label: "累计调用",
+      label: "Total Calls",
       value: (stats.usage_calls_total ?? 0).toLocaleString(),
-      hint: `近窗 ${periodDaily.calls.toLocaleString()} 次`,
+      hint: `Selected period: ${periodDaily.calls.toLocaleString()}`,
       icon: Layers,
       tone: "slate",
     },
@@ -151,7 +151,7 @@ export function buildProjectInsights(stats: AdminStats | null, periodDaily: Retu
       key: `status-${status}`,
       label: projectStatusLabel(status),
       value: count,
-      hint: kepuTotal > 0 ? `占科普 ${((count / kepuTotal) * 100).toFixed(1)}%` : undefined,
+      hint: kepuTotal > 0 ? `${((count / kepuTotal) * 100).toFixed(1)}% of short video projects` : undefined,
       icon: meta.icon,
       tone: meta.tone,
     });

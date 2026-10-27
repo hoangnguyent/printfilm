@@ -1,7 +1,7 @@
 import { BarChart3, Clapperboard, LayoutDashboard, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/** 仪表盘主板块 */
+/** Main dashboard sections */
 export type DashboardSection = "overview" | "usage" | "finance" | "projects";
 
 const SECTIONS: {
@@ -10,10 +10,10 @@ const SECTIONS: {
   desc: string;
   icon: typeof LayoutDashboard;
 }[] = [
-  { id: "overview", label: "经营概览", desc: "核心指标与趋势", icon: LayoutDashboard },
-  { id: "usage", label: "用量分析", desc: "调用与分布", icon: BarChart3 },
-  { id: "finance", label: "财务账单", desc: "充值与成本", icon: Wallet },
-  { id: "projects", label: "项目运维", desc: "生产与快捷入口", icon: Clapperboard },
+  { id: "overview", label: "Overview", desc: "Key metrics and trends", icon: LayoutDashboard },
+  { id: "usage", label: "Usage Analysis", desc: "Calls and distribution", icon: BarChart3 },
+  { id: "finance", label: "Finance", desc: "Top-ups and costs", icon: Wallet },
+  { id: "projects", label: "Project Operations", desc: "Production and quick links", icon: Clapperboard },
 ];
 
 type DashboardSectionTabsProps = {
@@ -21,10 +21,10 @@ type DashboardSectionTabsProps = {
   onChange: (next: DashboardSection) => void;
 };
 
-/** 仪表盘板块切换 */
+/** Dashboard section switcher */
 export function DashboardSectionTabs({ value, onChange }: DashboardSectionTabsProps) {
   return (
-    <div className="admin-dashboard-section-tabs" role="tablist" aria-label="仪表盘板块">
+    <div className="admin-dashboard-section-tabs" role="tablist" aria-label="Dashboard sections">
       {SECTIONS.map((item) => {
         const active = value === item.id;
         const Icon = item.icon;

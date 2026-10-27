@@ -12,11 +12,11 @@ type AdminUserSearchSelectProps = {
   className?: string;
 };
 
-/** 远程搜索用户（账号 ID + 邮箱） */
+/** Search users remotely by account ID or email */
 export function AdminUserSearchSelect({
   value,
   onChange,
-  placeholder = "搜索用户邮箱 / 账号 ID",
+  placeholder = "Search user email / account ID",
   className,
 }: AdminUserSearchSelectProps) {
   const [query, setQuery] = useState("");
@@ -33,10 +33,10 @@ export function AdminUserSearchSelect({
       );
       const hit = res.items.find((u) => u.id === userId) ?? res.items[0];
       if (hit) {
-        setSelectedLabel(`${hit.email} · ID：${formatAccountId(hit.id)}`);
+        setSelectedLabel(`${hit.email} · ID: ${formatAccountId(hit.id)}`);
       }
     } catch {
-      setSelectedLabel(`ID：${formatAccountId(userId)}`);
+      setSelectedLabel(`ID: ${formatAccountId(userId)}`);
     }
   }, []);
 
@@ -94,16 +94,16 @@ export function AdminUserSearchSelect({
             setQuery("");
             setSelectedLabel("");
           }}
-          aria-label="清除用户"
+          aria-label="Clear user"
         >
           ×
         </button>
       ) : null}
       {open && (query.trim() || options.length > 0) ? (
         <div className="admin-user-search-dropdown">
-          {loading ? <div className="admin-user-search-empty">搜索中…</div> : null}
+          {loading ? <div className="admin-user-search-empty">Searching…</div> : null}
           {!loading && options.length === 0 ? (
-            <div className="admin-user-search-empty">无匹配用户</div>
+            <div className="admin-user-search-empty">No matching users</div>
           ) : null}
           {options.map((u) => (
             <button
@@ -113,14 +113,14 @@ export function AdminUserSearchSelect({
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 onChange(u.id, u);
-                setSelectedLabel(`${u.email} · ID：${formatAccountId(u.id)}`);
+                setSelectedLabel(`${u.email} · ID: ${formatAccountId(u.id)}`);
                 setQuery("");
                 setOpen(false);
               }}
             >
               <span className="font-medium">{u.email}</span>
               <span className="text-xs text-[var(--admin-muted)]">
-                ID：{formatAccountId(u.id)}
+                ID: {formatAccountId(u.id)}
                 {u.nickname ? ` · ${u.nickname}` : ""}
               </span>
             </button>

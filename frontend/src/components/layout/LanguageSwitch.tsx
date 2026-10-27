@@ -1,21 +1,27 @@
 import { LOCALES, type Locale } from '../../i18n/detect'
 import { useI18n } from '../../i18n'
 
-/** 顶栏中/英切换：点击后写入偏好，覆盖浏览器语言 */
+/** Select the interface language and save the preference. */
 export default function LanguageSwitch() {
   const { locale, setLocale, t } = useI18n()
+  const labels: Record<Locale, string> = {
+    en: 'English',
+    zh: '中文',
+    vi: 'Tiếng Việt',
+  }
 
   return (
     <div className="pf-nav-lang" role="group" aria-label={t('nav.language')}>
-      {LOCALES.map((code: Locale) => (
+      {LOCALES.map((code) => (
         <button
           key={code}
           type="button"
           className={locale === code ? 'is-active' : undefined}
           aria-pressed={locale === code}
+          aria-label={labels[code]}
           onClick={() => setLocale(code)}
         >
-          {code === 'zh' ? t('nav.langZh') : t('nav.langEn')}
+          {labels[code]}
         </button>
       ))}
     </div>

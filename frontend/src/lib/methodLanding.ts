@@ -393,4 +393,4 @@ const en: MethodLandingCopy = {
   jsonLdHeadline: 'PRINTFILM lead-gen short video: production SOP, GEO companion, distribution, and human review',
 }
 
-export const METHOD_LANDING: Record<'zh' | 'en', MethodLandingCopy> = { zh, en }
+export const METHOD_LANDING: Record<'zh' | 'en' | 'vi', MethodLandingCopy> = { zh, en, vi: en }

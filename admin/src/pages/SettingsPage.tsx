@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils";
 type SettingsTab = "routing" | "runtime" | "oss" | "payment" | "site";
 
 const TABS: { id: SettingsTab; label: string }[] = [
-  { id: "routing", label: "模型" },
-  { id: "runtime", label: "运行参数" },
-  { id: "oss", label: "存储 OSS" },
-  { id: "payment", label: "支付计费" },
-  { id: "site", label: "站点工具" },
+  { id: "routing", label: "Models" },
+  { id: "runtime", label: "Runtime" },
+  { id: "oss", label: "Storage (OSS)" },
+  { id: "payment", label: "Payments & Billing" },
+  { id: "site", label: "Site & Tools" },
 ];
 
 // 页头：标题 + 统一保存按钮
@@ -27,9 +27,9 @@ function SettingsPageHeader() {
   return (
     <header className="settings-page-hero">
       <div className="min-w-0">
-        <h1 className="settings-page-title">系统设置</h1>
+        <h1 className="settings-page-title">System Settings</h1>
         <p className="settings-head-desc">
-          TokenFree API Key、运行参数、OSS / 易支付 / 计费与站点配置；密钥加密存库，留空保存不修改。
+          Configure the TokenFree API key, runtime, OSS, payments, billing, and site settings. Secrets are encrypted; leave a field blank to keep its current value.
         </p>
       </div>
       {action ? (
@@ -40,7 +40,7 @@ function SettingsPageHeader() {
           onClick={() => void action.onSave()}
         >
           {action.saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-          {action.label ?? "保存"}
+          {action.label ?? "Save"}
         </button>
       ) : null}
     </header>
@@ -55,7 +55,7 @@ function SettingsPageInner() {
     <div className="settings-page admin-page">
       <SettingsPageHeader />
 
-      <div className="settings-tabs" role="tablist" aria-label="系统设置分区">
+      <div className="settings-tabs" role="tablist" aria-label="System settings sections">
         {TABS.map(({ id, label }) => (
           <button
             key={id}

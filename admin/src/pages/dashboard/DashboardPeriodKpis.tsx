@@ -23,31 +23,31 @@ export function DashboardPeriodKpis({ stats, filters, loading }: DashboardPeriod
   return (
     <div className="admin-dashboard-kpi-grid admin-dashboard-kpi-grid--secondary">
       <DashboardKpiCard
-        label={`${rangeLabel}调用`}
+        label={`${rangeLabel} Calls`}
         value={stats ? period.calls.toLocaleString() : placeholder}
-        hint={stats ? `累计 ${stats.usage_calls_total ?? 0} 次` : "调用次数"}
+        hint={stats ? `All time: ${stats.usage_calls_total ?? 0}` : "Total calls"}
         icon={Activity}
         tone="mint"
       />
       <DashboardKpiCard
-        label={`${rangeLabel}扣费`}
+        label={`${rangeLabel} Charges`}
         value={stats ? `¥${fenToYuan(period.charge_fen)}` : placeholder}
-        hint={stats ? `本月 ¥${fenToYuan(stats.usage_charge_month_fen ?? 0)}` : "用户扣费"}
+        hint={stats ? `This month ¥${fenToYuan(stats.usage_charge_month_fen ?? 0)}` : "User charges"}
         icon={TrendingUp}
         tone="blue"
       />
       <DashboardKpiCard
-        label={`${rangeLabel}毛利`}
+        label={`${rangeLabel} Gross Profit`}
         value={stats ? `¥${fenToYuan(profitFen)}` : placeholder}
-        hint={stats ? `成本 ¥${fenToYuan(period.cost_fen)}` : "扣费减成本"}
+        hint={stats ? `Cost ¥${fenToYuan(period.cost_fen)}` : "Charges minus costs"}
         icon={Percent}
         tone="rose"
-        trend={profitPct ? `毛利率 ${profitPct}` : undefined}
+        trend={profitPct ? `Margin ${profitPct}` : undefined}
       />
       <DashboardKpiCard
-        label="漫剧项目"
+        label="Drama Projects"
         value={stats ? stats.drama_project_count ?? 0 : placeholder}
-        hint={stats ? `用户 ${stats.user_count}` : "项目规模"}
+        hint={stats ? `Users ${stats.user_count}` : "Project volume"}
         icon={Film}
         tone="slate"
       />

@@ -28,12 +28,12 @@ type TaskListRowProps = {
   onCancel: (task: AdminTaskRow) => void;
 };
 
-// 待处理任务细分为待激活 / 延时等待 / 待调度
+// Split pending tasks into deferred, delayed, and ready-to-schedule states
 function queueStatusLabel(task: AdminTaskRow): string {
   if (task.status !== "pending") return taskStatusLabel(task.status);
-  if (task.next_action_at === undefined) return "待处理";
-  if (task.next_action_at === null) return "待激活";
-  return new Date(task.next_action_at).getTime() > Date.now() ? "延时等待" : "待调度";
+  if (task.next_action_at === undefined) return "Pending";
+  if (task.next_action_at === null) return "Deferred";
+  return new Date(task.next_action_at).getTime() > Date.now() ? "Delayed" : "Ready to schedule";
 }
 
 // 列表内只显示月日时分，完整时间放 title
@@ -57,8 +57,8 @@ function scopeLinks(task: AdminTaskRow): ReactNode {
   if (task.drama_project_id) parts.push(<AdminEntityLink key="drama" kind="drama" id={task.drama_project_id} />);
   if (task.project_id) parts.push(<AdminEntityLink key="project" kind="project" id={task.project_id} />);
   if (task.asset_id) parts.push(<AdminEntityLink key="asset" kind="drama_asset" id={task.asset_id} />);
-  if (task.episode_id) parts.push(<span key="ep">分集#{task.episode_id}</span>);
-  if (task.fragment_id) parts.push(<span key="frag">分镜#{task.fragment_id}</span>);
+  if (task.episode_id) parts.push(<span key="ep">Episode #{task.episode_id}</span>);
+  if (task.fragment_id) parts.push(<span key="frag">Storyboard #{task.fragment_id}</span>);
   if (parts.length === 0) return null;
   return <div className="task-cell-sub flex flex-wrap gap-x-2" onClick={stopRowClick}>{parts}</div>;
 }
@@ -70,12 +70,12 @@ function BillingCell({ billing }: { billing: ReturnType<typeof taskBilling> }) {
   return (
     <>
       <div className={cn("task-cell-main tabular-nums", frozen && "text-[#b45309]", !charged && !frozen && "!font-normal text-[var(--admin-muted)]")}>
-        {charged ? money(billing.chargedFen) : frozen ? `冻结 ${money(billing.frozenFen)}` : "未扣费"}
+        {charged ? money(billing.chargedFen) : frozen ? `Frozen ${money(billing.frozenFen)}` : "Not charged"}
       </div>
       <div className="task-cell-sub tabular-nums" title={billing.label}>
-        预估 {money(billing.estimateFen)}
-        {charged && (billing.refundedFen ?? 0) > 0 ? ` · 退 ${money(billing.refundedFen)}` : ""}
-        {!billing.settled ? " · 未结算" : ""}
+        Estimated {money(billing.estimateFen)}
+        {charged && (billing.refundedFen ?? 0) > 0 ? ` · Refunded ${money(billing.refundedFen)}` : ""}
+        {!billing.settled ? " · Unsettled" : ""}
       </div>
     </>
   );
@@ -98,9 +98,9 @@ export function TaskListRow({ task, upstream, billing, now, cancelling, onOpen, 
         </div>
         <div
           className="task-model-chip"
-          title={upstream.modelFromRequest ? `实际请求模型${upstream.provider ? ` · ${upstream.provider}` : ""}` : "任务选择模型"}
+          title={upstream.modelFromRequest ? `Model in request${upstream.provider ? ` · ${upstream.provider}` : ""}` : "Model selected for task"}
         >
-          {upstream.model || "模型未记录"}
+          {upstream.model || "Model not recorded"}
         </div>
       </td>
       <td className="min-w-[170px]">
@@ -114,7 +114,7 @@ export function TaskListRow({ task, upstream, billing, now, cancelling, onOpen, 
         {error ? (
           <div className="task-cell-sub max-w-[220px] truncate !text-[#dc2626]" title={error}>{error}</div>
         ) : (
-          <div className="task-cell-sub font-mono">{task.current_step_key || "步骤未记录"}{task.current_step_status ? ` · ${task.current_step_status}` : ""}</div>
+          <div className="task-cell-sub font-mono">{task.current_step_key || "Step not recorded"}{task.current_step_status ? ` · ${task.current_step_status}` : ""}</div>
         )}
       </td>
       <td className="min-w-[210px]">
@@ -138,10 +138,10 @@ export function TaskListRow({ task, upstream, billing, now, cancelling, onOpen, 
       <td className="min-w-[140px]">
         <div className="task-cell-main tabular-nums">
           {formatTaskDuration(duration.totalMs)}
-          {duration.live ? <span className="task-live-dot" title="计时中" /> : null}
+          {duration.live ? <span className="task-live-dot" title="Running timer" /> : null}
         </div>
         <div className="task-cell-sub tabular-nums">
-          等待 {formatTaskDuration(duration.waitingMs)} · 运行 {duration.runningMs == null && !task.started_at && duration.live ? "未开始" : formatTaskDuration(duration.runningMs)}
+          Waiting {formatTaskDuration(duration.waitingMs)} · Running {duration.runningMs == null && !task.started_at && duration.live ? "Not started" : formatTaskDuration(duration.runningMs)}
         </div>
       </td>
       <td className="min-w-[170px]">
@@ -149,15 +149,15 @@ export function TaskListRow({ task, upstream, billing, now, cancelling, onOpen, 
           <AdminEntityLink kind="user" id={task.requested_by} label={task.user_email ?? undefined} className="text-xs" />
         </div>
         {scopeLinks(task)}
-        <div className="task-cell-sub" title={task.created_at ? new Date(task.created_at).toLocaleString() : undefined}>创建 {shortTime(task.created_at)}</div>
+        <div className="task-cell-sub" title={task.created_at ? new Date(task.created_at).toLocaleString() : undefined}>Created {shortTime(task.created_at)}</div>
       </td>
       <td className="text-right" onClick={stopRowClick}>
         <div className="inline-flex gap-1">
-          <button type="button" className="task-icon-btn" title="详情" aria-label="详情" onClick={() => onOpen(task.id)}>
+          <button type="button" className="task-icon-btn" title="Details" aria-label="Details" onClick={() => onOpen(task.id)}>
             <Eye className="h-4 w-4" />
           </button>
           {canCancelTask(task) ? (
-            <button type="button" className="task-icon-btn is-danger" title="取消任务" aria-label="取消任务" disabled={cancelling} onClick={() => onCancel(task)}>
+            <button type="button" className="task-icon-btn is-danger" title="Cancel task" aria-label="Cancel task" disabled={cancelling} onClick={() => onCancel(task)}>
               {cancelling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ban className="h-4 w-4" />}
             </button>
           ) : null}

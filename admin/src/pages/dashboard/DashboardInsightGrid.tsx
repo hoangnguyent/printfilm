@@ -19,10 +19,10 @@ type DashboardInsightGridProps = {
   className?: string;
 };
 
-/** 仪表盘图标洞察格：能力/领域/周期指标 */
+/** Dashboard insight cards for capability, domain, and period metrics. */
 export function DashboardInsightGrid({ items, columns = 4, className }: DashboardInsightGridProps) {
   if (items.length === 0) {
-    return <div className="admin-chart-empty !min-h-[88px]">暂无数据</div>;
+    return <div className="admin-chart-empty !min-h-[88px]">No data available</div>;
   }
 
   return (

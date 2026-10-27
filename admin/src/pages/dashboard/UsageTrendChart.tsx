@@ -17,9 +17,9 @@ type UsageTrendChartProps = {
 };
 
 function metricLabel(metric: DashboardMetric): string {
-  if (metric === "cost") return "上游成本";
-  if (metric === "calls") return "调用次数";
-  return "扣费金额";
+  if (metric === "cost") return "Upstream Cost";
+  if (metric === "calls") return "Call Count";
+  return "Amount Charged";
 }
 
 function readMetric(row: AdminDailyUsage, metric: DashboardMetric): number {
@@ -38,7 +38,7 @@ function shortDate(iso: string): string {
   return parts.length === 3 ? `${parts[1]}/${parts[2]}` : iso;
 }
 
-/** 用量趋势面积图 */
+/** Usage trend area chart */
 export function UsageTrendChart({ data, metric }: UsageTrendChartProps) {
   const chartData = data.map((row) => ({
     date: row.date,
@@ -47,7 +47,7 @@ export function UsageTrendChart({ data, metric }: UsageTrendChartProps) {
   }));
 
   if (chartData.length === 0) {
-    return <div className="admin-chart-empty">暂无趋势数据</div>;
+    return <div className="admin-chart-empty">No trend data available</div>;
   }
 
   return (

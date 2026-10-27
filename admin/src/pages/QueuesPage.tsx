@@ -21,11 +21,11 @@ const REFRESH_MS = 15000;
 const TERMINAL_STATUSES = new Set(["succeeded", "failed", "cancelled"]);
 
 function formatElapsed(seconds: number | null | undefined): string {
-  if (seconds == null || !Number.isFinite(seconds)) return "暂无记录";
+  if (seconds == null || !Number.isFinite(seconds)) return "No record";
   const value = Math.max(0, Math.floor(seconds));
-  if (value < 60) return `${value}秒`;
-  if (value < 3600) return `${Math.floor(value / 60)}分${value % 60}秒`;
-  return `${Math.floor(value / 3600)}小时${Math.floor((value % 3600) / 60)}分`;
+  if (value < 60) return `${value}s`;
+  if (value < 3600) return `${Math.floor(value / 60)}m ${value % 60}s`;
+  return `${Math.floor(value / 3600)}h ${Math.floor((value % 3600) / 60)}m`;
 }
 
 // 统一任务平台监控页
@@ -83,7 +83,7 @@ export function QueuesPage() {
         setData(res);
       } catch (err) {
         if (!silent) {
-          toast.error(err instanceof Error ? err.message : "加载任务失败");
+          toast.error(err instanceof Error ? err.message : "Failed to load tasks");
         }
       } finally {
         setLoading(false);
@@ -99,7 +99,7 @@ export function QueuesPage() {
       try {
         await Promise.all([loadStats(), loadTasks(true)]);
       } catch (err) {
-        if (!silent) toast.error(err instanceof Error ? err.message : "刷新失败");
+        if (!silent) toast.error(err instanceof Error ? err.message : "Refresh failed");
       } finally {
         setRefreshing(false);
         setLoading(false);
@@ -124,14 +124,14 @@ export function QueuesPage() {
   const handleCancel = useCallback(
     async (task: AdminTaskRow) => {
       if (!canCancelTask(task)) return;
-      if (!window.confirm(`确定取消任务 #${task.id}（${taskTypeLabel(task.task_type)}）？`)) return;
+      if (!window.confirm(`Cancel task #${task.id} (${taskTypeLabel(task.task_type)})?`)) return;
       setCancelLoading(task.id);
       try {
         await api(`/api/admin/tasks/${task.id}/cancel`, { method: "POST" });
-        toast.success("已提交取消请求");
+        toast.success("Cancellation request submitted");
         await refreshAll(true);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "取消失败");
+        toast.error(err instanceof Error ? err.message : "Failed to cancel task");
       } finally {
         setCancelLoading(null);
       }
@@ -147,7 +147,7 @@ export function QueuesPage() {
   return (
     <div className="admin-page">
       <PageHeader
-        description={`统一任务平台 · 自动刷新 ${REFRESH_MS / 1000}s · ${apiOnlyNode ? "本节点仅 API / 队列由执行节点处理" : `本节点并发 ${stats?.scheduler_running_jobs ?? 0}/${stats?.max_concurrency ?? 0}`}`}
+        description={`Unified task platform · Auto-refresh every ${REFRESH_MS / 1000}s · ${apiOnlyNode ? "API-only node / tasks handled by worker nodes" : `Node concurrency ${stats?.scheduler_running_jobs ?? 0}/${stats?.max_concurrency ?? 0}`}`}
         actions={
           <button
             type="button"
@@ -156,7 +156,7 @@ export function QueuesPage() {
             disabled={refreshing}
           >
             {refreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            刷新
+            Refresh
           </button>
         }
       />
@@ -164,66 +164,66 @@ export function QueuesPage() {
       {loading && !stats ? (
         <div className="admin-panel flex items-center justify-center py-16 text-[var(--admin-muted)]">
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          加载中…
+          Loading…
         </div>
       ) : (
         <>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              label="待处理"
+              label="Pending"
               value={stats?.pending_count ?? 0}
-              hint={`待调度 ${stats?.pending_ready_count ?? "—"} · 待激活 ${stats?.pending_deferred_count ?? "—"} · 延时 ${stats?.pending_delayed_count ?? "—"}`}
+              hint={`Ready ${stats?.pending_ready_count ?? "—"} · Deferred ${stats?.pending_deferred_count ?? "—"} · Delayed ${stats?.pending_delayed_count ?? "—"}`}
               icon={Layers}
               tone="warn"
             />
             <StatCard
-              label="进行中"
+              label="Active"
               value={stats?.active_count ?? 0}
-              hint={`执行 ${stats?.running_count ?? 0} · 轮询 ${stats?.awaiting_poll_count ?? 0} · 取消中 ${stats?.cancel_requested_count ?? 0}`}
+              hint={`Running ${stats?.running_count ?? 0} · Polling ${stats?.awaiting_poll_count ?? 0} · Cancelling ${stats?.cancel_requested_count ?? 0}`}
               icon={Activity}
               tone="info"
             />
             <StatCard
-              label="本节点执行槽位"
+              label="Node Worker Slots"
               value={
-                apiOnlyNode ? <span className="text-lg">仅 API</span> : <>
+                apiOnlyNode ? <span className="text-lg">API Only</span> : <>
                   {stats?.scheduler_running_jobs ?? 0}
                   <span className="text-lg text-[var(--admin-muted)]"> / {stats?.max_concurrency ?? 0}</span>
                 </>
               }
-              hint={apiOnlyNode ? "队列由执行节点处理" : `全站已租约 ${stats?.leased_count ?? 0}`}
+              hint={apiOnlyNode ? "Tasks handled by worker nodes" : `Leased across all nodes: ${stats?.leased_count ?? 0}`}
               icon={RefreshCw}
             />
             <div className="admin-panel admin-stat-card tone-success">
               <div className="admin-stat-icon">
                 <Ban className="h-5 w-5" />
               </div>
-              <div className="admin-stat-label">终态统计</div>
+              <div className="admin-stat-label">Completed Task Stats</div>
               <div className="admin-stat-value !text-base !leading-relaxed">
-                成功 {stats?.succeeded_count ?? 0} · 失败 {stats?.failed_count ?? 0} · 取消{" "}
+                Succeeded {stats?.succeeded_count ?? 0} · Failed {stats?.failed_count ?? 0} · Cancelled{" "}
                 {stats?.cancelled_count ?? 0}
               </div>
               <div className="admin-stat-hint">
-                更新 {stats?.fetched_at ? new Date(stats.fetched_at).toLocaleTimeString() : "—"}
+                Updated {stats?.fetched_at ? new Date(stats.fetched_at).toLocaleTimeString() : "—"}
               </div>
             </div>
           </div>
 
           <div className="admin-panel mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 text-xs text-[var(--admin-muted)]">
             <span className={cn("admin-status-pill", stats?.runtime_healthy === undefined ? "" : stats.runtime_healthy ? "is-done" : "is-fail")}>
-              {apiOnlyNode ? "本节点仅 API" : `运行时${stats?.runtime_healthy === undefined ? "状态未知" : stats.runtime_healthy ? "正常" : "异常"}`}
+              {apiOnlyNode ? "API-only node" : `Runtime: ${stats?.runtime_healthy === undefined ? "Unknown" : stats.runtime_healthy ? "Healthy" : "Unhealthy"}`}
             </span>
-            {apiOnlyNode ? <span>本节点仅 API / 队列由执行节点处理</span> : <>
-              <span>调度器 {stats?.scheduler ?? "—"} · 轮询器 {stats?.poller ?? "—"} · 看门狗 {stats?.watchdog ?? "—"}</span>
-              <span>最近成功调度：{stats?.scheduler_success_age_sec == null ? "暂无记录" : `${formatElapsed(stats.scheduler_success_age_sec)}前`}</span>
-              <span>连续失败：{stats?.scheduler_consecutive_failures ?? "—"}</span>
+            {apiOnlyNode ? <span>API-only node / tasks handled by worker nodes</span> : <>
+              <span>Scheduler {stats?.scheduler ?? "—"} · Poller {stats?.poller ?? "—"} · Watchdog {stats?.watchdog ?? "—"}</span>
+              <span>Last successful schedule: {stats?.scheduler_success_age_sec == null ? "No record" : `${formatElapsed(stats.scheduler_success_age_sec)} ago`}</span>
+              <span>Consecutive failures: {stats?.scheduler_consecutive_failures ?? "—"}</span>
             </>}
-            <span>最老到期待调度已等待：{formatElapsed(stats?.oldest_ready_wait_sec)}</span>
-            <span>待激活表示前置条件或并发空位尚未满足；延时表示尚未到调度时间。</span>
+            <span>Oldest ready task waiting: {formatElapsed(stats?.oldest_ready_wait_sec)}</span>
+            <span>Deferred tasks are waiting for prerequisites or capacity; delayed tasks are not due for scheduling yet.</span>
           </div>
 
           {(stats?.domains.length ?? 0) > 0 ? (
-            <PageSection title="各领域任务" bodyClassName="!pt-0">
+            <PageSection title="Tasks by Domain" bodyClassName="!pt-0">
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {stats?.domains.map((d) => (
                   <div key={d.domain} className="admin-domain-card">
@@ -242,7 +242,7 @@ export function QueuesPage() {
                       </span>
                     </div>
                     <div className="mt-2 text-xs text-[var(--admin-muted)]">
-                      待处理 {d.pending} · 进行 {d.active} · 成功 {d.succeeded}
+                      Pending {d.pending} · Active {d.active} · Succeeded {d.succeeded}
                     </div>
                   </div>
                 ))}
@@ -251,13 +251,13 @@ export function QueuesPage() {
           ) : null}
 
           <PageSection
-            title="任务列表"
+            title="Task List"
             actions={
               <div className="flex flex-wrap gap-2">
                 {(
                   [
-                    ["active", `未结束 (${stats?.pending_count ?? 0}+${stats?.active_count ?? 0})`],
-                    ["all", "全部"],
+                    ["active", `Active (${stats?.pending_count ?? 0}+${stats?.active_count ?? 0})`],
+                    ["all", "All"],
                   ] as const
                 ).map(([key, label]) => (
                   <button
@@ -286,7 +286,7 @@ export function QueuesPage() {
                   setPage(1);
                 }}
               >
-                <option value="">全部领域</option>
+                <option value="">All domains</option>
                 {domainOptions.map((d) => (
                   <option key={d} value={d}>
                     {taskDomainLabel(d)}
@@ -302,16 +302,16 @@ export function QueuesPage() {
                   if (e.target.value) setViewTab("all");
                 }}
               >
-                <option value="">全部状态</option>
+                <option value="">All statuses</option>
                 {Object.entries({
-                  pending: "待处理",
-                  leased: "已租约",
-                  running: "执行中",
-                  awaiting_poll: "等待轮询",
-                  cancel_requested: "取消中",
-                  succeeded: "已成功",
-                  failed: "失败",
-                  cancelled: "已取消",
+                  pending: "Pending",
+                  leased: "Leased",
+                  running: "Running",
+                  awaiting_poll: "Awaiting Poll",
+                  cancel_requested: "Cancelling",
+                  succeeded: "Succeeded",
+                  failed: "Failed",
+                  cancelled: "Cancelled",
                 }).map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
@@ -327,7 +327,7 @@ export function QueuesPage() {
               />
               <input
                 className="admin-input"
-                placeholder="任务类型"
+                placeholder="Task type"
                 value={taskType}
                 onChange={(e) => {
                   setTaskType(e.target.value);
@@ -337,7 +337,7 @@ export function QueuesPage() {
               <AdminSearchInput
                 value={searchInput}
                 onChange={setSearchInput}
-                placeholder="任务类型 / 用户邮箱 / dedupe_key"
+                placeholder="Task type / user email / dedupe_key"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -354,7 +354,7 @@ export function QueuesPage() {
                   setPage(1);
                 }}
               >
-                查询
+                Search
               </button>
             </Toolbar>
 
@@ -362,13 +362,13 @@ export function QueuesPage() {
               <table className="task-table">
                 <thead>
                   <tr>
-                    <th>任务 / 模型</th>
-                    <th>状态</th>
-                    <th>上游</th>
-                    <th>计费</th>
-                    <th>耗时</th>
-                    <th>用户 / 关联</th>
-                    <th className="text-right">操作</th>
+                    <th>Task / Model</th>
+                    <th>Status</th>
+                    <th>Upstream</th>
+                    <th>Billing</th>
+                    <th>Duration</th>
+                    <th>User / Reference</th>
+                    <th className="text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -376,8 +376,8 @@ export function QueuesPage() {
                     <tr>
                       <td colSpan={7}>
                         <div className="admin-empty !py-10">
-                          <div className="admin-empty-title">暂无任务</div>
-                          <div className="admin-empty-desc">切换到「全部」查看历史任务</div>
+                          <div className="admin-empty-title">No tasks found</div>
+                          <div className="admin-empty-desc">Switch to “All” to view task history</div>
                         </div>
                       </td>
                     </tr>
