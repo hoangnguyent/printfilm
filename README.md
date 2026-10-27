@@ -113,6 +113,8 @@ cp deploy/.env.docker.example deploy/.env.docker
 
 无 Key 想先看界面：把 `ARK_MOCK=true`。
 
+默认 Docker 主机端口为 PostgreSQL `25432`、Redis `26379`、API `18000`、用户端 `18080`、管理端 `18081`。API 容器在 Docker 网络内仍通过 `postgres:5432` 连接数据库；如需自定义主机端口，改对应的 `*_PORT` 变量即可。
+
 ### 2. 一键启动
 
 ```bash
@@ -123,10 +125,10 @@ docker compose --env-file deploy/.env.docker up -d
 
 | 服务 | 地址 |
 |------|------|
-| 用户端 | http://localhost:8080 |
-| 管理后台 | http://localhost:8081 |
-| API / 文档 | http://localhost:8000 · `/docs` |
-| 健康检查 | http://localhost:8000/api/health |
+| 用户端 | http://localhost:18080 |
+| 管理后台 | http://localhost:18081 |
+| API / 文档 | http://localhost:18000 · `/docs` |
+| 健康检查 | http://localhost:18000/api/health |
 
 常用：
 
@@ -194,11 +196,11 @@ MODEL_VIDEO=seedance-2-5
 docker compose --env-file deploy/.env.docker up -d --force-recreate api
 ```
 
-打开 http://localhost:8000/api/health ，`ark_mock` 应为 `false`。
+打开 http://localhost:18000/api/health ，`ark_mock` 应为 `false`。
 
 ### C. 在管理后台填写（推荐日常改 Key）
 
-1. 用管理员登录 http://localhost:8081 。
+1. 用管理员登录 http://localhost:18081 。
 2. 打开 **系统设置 → 模型**（路由 / TokenFree 渠道）。
 3. 在 TokenFree 渠道填入 API Key 并保存。
 4. 按需调整默认文字 / 图 / 视频模型；保存后即时生效，一般不必改 `.env`。

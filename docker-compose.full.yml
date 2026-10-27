@@ -21,7 +21,7 @@ services:
       timeout: 5s
       retries: 20
     ports:
-      - "15432:5432"
+      - "${POSTGRES_PORT:-25432}:5432"
 
   redis:
     image: redis:7-alpine
@@ -35,7 +35,7 @@ services:
       timeout: 3s
       retries: 20
     ports:
-      - "16379:6379"
+      - "${REDIS_PORT:-26379}:6379"
 
   api:
     image: printfilm-api:latest
@@ -69,7 +69,7 @@ services:
       retries: 8
       start_period: 40s
     ports:
-      - "8000:8000"
+      - "${API_PORT:-18000}:8000"
 
   web:
     image: printfilm-web:latest
@@ -81,7 +81,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "8080:80"
+      - "${WEB_PORT:-18080}:80"
 
   admin-web:
     image: printfilm-admin-web:latest
@@ -93,7 +93,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "8081:80"
+      - "${ADMIN_PORT:-18081}:80"
 
 volumes:
   printfilm_pgdata:

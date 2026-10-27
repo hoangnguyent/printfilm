@@ -10,7 +10,7 @@ services:
     container_name: ai-movie-pg
     restart: unless-stopped
     ports:
-      - "0.0.0.0:${POSTGRES_PORT:-15432}:5432"
+      - "0.0.0.0:${POSTGRES_PORT:-25432}:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-printfilm}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env.prod}
@@ -28,7 +28,7 @@ services:
     container_name: ai-movie-redis
     restart: unless-stopped
     ports:
-      - "0.0.0.0:${REDIS_PORT:-16379}:6379"
+      - "0.0.0.0:${REDIS_PORT:-26379}:6379"
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
     volumes:
       - ai_movie_redisdata:/data

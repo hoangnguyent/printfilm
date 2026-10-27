@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 60 * 24 * 7
 
-    database_url: str = "postgresql+asyncpg://printfilm:change-me-strong-db-password@127.0.0.1:15432/printfilm"
-    database_url_sync: str = "postgresql+psycopg2://printfilm:change-me-strong-db-password@127.0.0.1:15432/printfilm"
+    database_url: str = "postgresql+asyncpg://printfilm:change-me-strong-db-password@127.0.0.1:25432/printfilm"
+    database_url_sync: str = "postgresql+psycopg2://printfilm:change-me-strong-db-password@127.0.0.1:25432/printfilm"
     # 连接已初始化的共享库时可关闭建表/补列/种子数据；仍加载数据库中的模型配置。
     database_bootstrap_enabled: bool = True
     # Postgres 连接池（统一任务平台 / API 共用）
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     db_max_overflow: int = 5
     db_pool_recycle_sec: int = 1800
     db_pool_timeout_sec: int = 30
-    redis_url: str = "redis://127.0.0.1:6379/0"
+    redis_url: str = "redis://127.0.0.1:26379/0"
 
     ark_api_key: str = ""
     ark_base_url: str = "https://www.tokenfree.com/v1"

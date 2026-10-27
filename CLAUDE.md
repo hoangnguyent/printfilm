@@ -10,7 +10,7 @@ PRINTFILM（仓库目录 `ai_movie`）：模板驱动的 AI 短视频（科普 k
 - **漫剧 drama**：项目 → 剧本摘要/分集 → 资产库（角色/场景/道具/音色）→ 分集分镜 → React Flow 画布
 - 另有工具中心（t2i/i2p/t2v 等）、开放 API（`/api/v1`）、管理后台、可选钱包计费（易支付）
 
-三条独立进程 + 两个容器中间件：FastAPI(:8000)、用户端 Vite(:5173)、管理端 Vite(:5174)、Postgres(:15432)、Redis(:16379)。技术栈：Python 3.12 / FastAPI / SQLAlchemy(asyncpg) / React 19 / TS / Vite 8。需要本机安装 FFmpeg。
+三条独立进程 + 两个容器中间件：FastAPI(:8000)、用户端 Vite(:5173)、管理端 Vite(:5174)、Postgres(:25432)、Redis(:26379)。Docker 全栈映射：Web(:18080)、管理端(:18081)、API(:18000)；容器内 API 通过 `postgres:5432` 连接数据库。技术栈：Python 3.12 / FastAPI / SQLAlchemy(asyncpg) / React 19 / TS / Vite 8。需要本机安装 FFmpeg。
 
 ## 常用命令
 

@@ -113,6 +113,8 @@ Edit `deploy/.env.docker` and change at least these three:
 
 No key yet, just want the UI? Set `ARK_MOCK=true`.
 
+Default Docker host ports are PostgreSQL `25432`, Redis `26379`, API `18000`, app `18080`, and admin `18081`. Inside the Docker network, the API still connects to PostgreSQL at `postgres:5432`. Change the corresponding `*_PORT` variables to customize host ports.
+
 ### 2. Start
 
 ```bash
@@ -123,10 +125,10 @@ Wait about half a minute (web / admin start after the API health check passes).
 
 | Service | URL |
 |---------|-----|
-| App | http://localhost:8080 |
-| Admin | http://localhost:8081 |
-| API / docs | http://localhost:8000 · `/docs` |
-| Health | http://localhost:8000/api/health |
+| App | http://localhost:18080 |
+| Admin | http://localhost:18081 |
+| API / docs | http://localhost:18000 · `/docs` |
+| Health | http://localhost:18000/api/health |
 
 Common commands:
 
@@ -194,11 +196,11 @@ Use the **same** value for `OPENAI_API_KEY` and `ARK_API_KEY`. Recreate the API 
 docker compose --env-file deploy/.env.docker up -d --force-recreate api
 ```
 
-Open http://localhost:8000/api/health — `ark_mock` should be `false`.
+Open http://localhost:18000/api/health — `ark_mock` should be `false`.
 
 ### C. Set key in admin (recommended for day-to-day key changes)
 
-1. Log in as admin at http://localhost:8081 .
+1. Log in as admin at http://localhost:18081 .
 2. Open **System settings → Models** (routing / TokenFree channel).
 3. Paste the API Key into the TokenFree channel and save.
 4. Adjust default text / image / video models as needed; changes apply immediately — usually no `.env` edit required.
